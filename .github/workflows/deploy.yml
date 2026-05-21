@@ -1,0 +1,38 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run lint
+      run: npm run lint
+
+    - name: Build application
+      run: npm run build
+
+    # Example Deployment Step (Uncomment and configure secrets to use)
+    # - name: Deploy to Cloud Run
+    #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    #   uses: google-github-actions/deploy-cloudrun@v2
+    #   with:
+    #     service: your-service-name
+    #     region: europe-west1
+    #     image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/you-app-image

@@ -1,0 +1,17 @@
+{
+  "name": "FISA3 Super App",
+  "description": "Tunisia's premier all-in-one delivery and marketplace platform. Food, groceries, pharmacy, and electronics delivered in minutes.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "Food Delivery",
+    "Grocery Marketplace",
+    "Live Rider Tracking",
+    "Merchant & Rider Dashboards",
+    "Multi-language Support",
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

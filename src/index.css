@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand: #E60023; /* Tunisia Red */
+  --color-brand-light: #FF3D5A;
+  --color-brand-dark: #B3001B;
+  
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-900: #0f172a;
+
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  @keyframes bounce-slight {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+}
+
+@layer base {
+  .animate-bounce-slight {
+    animation: bounce-slight 0.8s infinite ease-in-out;
+  }
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-[#0B0F19] dark:text-slate-100 antialiased selection:bg-brand/20 font-sans transition-colors duration-300;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/40 dark:border-slate-800/40 shadow-sm transition-colors;
+  }
+
+  .premium-card {
+    @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 transition-all duration-300 shadow-sm hover:shadow-xl hover:border-brand/30 dark:hover:border-brand/30;
+  }
+
+  .btn-primary {
+    @apply bg-brand text-white font-bold px-6 py-2.5 rounded-full transition-all hover:bg-brand-dark active:scale-95 shadow-lg shadow-brand/20 flex items-center justify-center gap-2 text-sm;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 bg-slate-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all text-sm;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Custom Leaflet Popup Styling */
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: 1.5rem !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.leaflet-popup-tip-container {
+  display: none !important;
+}
+
+.leaflet-container {
+  font-family: inherit !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-all;
+}

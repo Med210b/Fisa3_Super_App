@@ -1,0 +1,134 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is an admin based on email
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'mohamedbentaher66@gmail.com' ||
+        request.auth.token.email == 'contact@mapstonegroup.com' ||
+        request.auth.token.email == 'hammami.fathi@gmail.co.com'
+      );
+    }
+    
+    // Helper function to check if the user is a designated rider
+    function isRider() {
+      return request.auth != null && (
+        request.auth.token.email == 'mohamedbentaher750@gmail.com'
+      );
+    }
+
+    // Helper function to check if the user is a merchant
+    function isMerchant() {
+      return request.auth != null && (
+        request.auth.token.email == 'mohamedbentaher250@gmail.com'
+      );
+    }
+
+    // --- Orders Collection ---
+    match /orders/{orderId} {
+      // Users can read their own orders; riders can read assigned orders; merchants can read their store orders; admins can read all
+      allow read: if request.auth != null && (
+        resource.data.customerId == request.auth.uid || 
+        resource.data.riderId == request.auth.uid ||
+        (isMerchant() && resource.data.storeId != null) || // Simplified: merchant can read all for now, or match storeId if we had store-uid mapping
+        isAdmin()
+      );
+      
+      // Any authenticated user can create an order
+      allow create: if request.auth != null;
+      
+      // Customers update for rating; Riders update for status; Merchants for store acceptance; Admins for management
+      allow update: if request.auth != null && (
+        resource.data.customerId == request.auth.uid || 
+        resource.data.riderId == request.auth.uid ||
+        isMerchant() ||
+        isAdmin()
+      );
+      
+      // Tracking sub-collection
+      match /tracking/{trackId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && (
+          get(/databases/$(database)/documents/orders/$(orderId)).data.riderId == request.auth.uid ||
+          isAdmin()
+        );
+      }
+    }
+
+    // --- Riders Collection ---
+    match /riders/{riderId} {
+      // Public profile/status is readable by authenticated users
+      allow read: if request.auth != null;
+      
+      // Riders update their own location/status; admins manage all
+      allow write: if request.auth != null && (
+        request.auth.uid == riderId || 
+        isAdmin()
+      );
+      
+      match /ratings/{ratingId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null;
+      }
+
+      match /notifications/{notificationId} {
+        allow read, update: if request.auth != null && request.auth.uid == riderId;
+        allow create: if request.auth != null && (isMerchant() || isAdmin());
+      }
+    }
+
+    // --- Conversations Collection ---
+    match /conversations/{convId} {
+      // Users access their own chats; admins access all
+      allow read: if request.auth != null && (
+        convId == request.auth.uid || 
+        isAdmin()
+      );
+      
+      // Creation of a new conversation
+      allow create: if request.auth != null;
+      
+      // Updates allowed for participants
+      allow update: if request.auth != null && (
+        convId == request.auth.uid || 
+        isAdmin()
+      );
+      
+      match /messages/{msgId} {
+        allow read: if request.auth != null && (
+          convId == request.auth.uid ||
+          isAdmin()
+        );
+        allow create: if request.auth != null;
+      }
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+      match /notifications/{notificationId} {
+        allow read, update: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null; // Simplified: anyone can send notification (merchants/riders)
+      }
+    }
+
+    // --- Stores and Products (Publicly Readable) ---
+    match /stores/{storeId} {
+      allow read: if true;
+      allow write: if isAdmin() || (isMerchant() && (resource == null || resource.data.merchantId == request.auth.uid));
+      
+      match /products/{productId} {
+        allow read: if true;
+        allow write: if isAdmin() || isMerchant();
+      }
+    }
+
+    // Top-level products collection if used
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin() || isMerchant();
+    }
+  }
+}

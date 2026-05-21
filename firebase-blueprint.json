@@ -1,0 +1,216 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile with role-based access control and contact info.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["USER", "RIDER", "MERCHANT", "ADMIN"] },
+        "wallet": { "type": "number" },
+        "profileImage": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Store": {
+      "title": "Store/Merchant",
+      "description": "A store or restaurant profile.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["FOOD", "GROCERY", "PHARMACY", "ELECTRONICS", "FASHION", "HOME"] },
+        "rating": { "type": "number" },
+        "image": { "type": "string" },
+        "address": { "type": "string" },
+        "location": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "merchantId": { "type": "string" },
+        "status": { "type": "string", "enum": ["OPEN", "CLOSED"] }
+      },
+      "required": ["id", "name", "type", "merchantId"]
+    },
+    "Product": {
+      "title": "Product/Menu Item",
+      "description": "An item sold by a store.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "image": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["AVAILABLE", "OUT_OF_STOCK"] }
+      },
+      "required": ["id", "storeId", "name", "price"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A customer order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "storeId": { "type": "string" },
+        "riderId": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "price": { "type": "number" }
+            }
+          }
+        },
+        "status": { "type": "string", "enum": ["PENDING", "PREPARING", "ON_THE_WAY", "DELIVERED", "CANCELLED"] },
+        "total": { "type": "number" },
+        "transactionId": { "type": "string" },
+        "deliveryLocation": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "customerId", "storeId", "items", "status", "total"]
+    },
+    "Tracking": {
+      "title": "Rider Tracking",
+      "description": "Real-time location data for a rider/order.",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string" },
+        "riderId": { "type": "string" },
+        "location": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "bearing": { "type": "number" },
+        "lastUpdate": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderId", "riderId", "location"]
+    },
+    "Rider": {
+      "title": "Rider",
+      "description": "A delivery rider profile and real-time status.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["IDLE", "BUSY", "OFFLINE"] },
+        "location": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "currentOrderId": { "type": "string" },
+        "rating": { "type": "number", "description": "Average rating" },
+        "totalRatings": { "type": "number", "default": 0 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "status", "location"]
+    },
+    "RiderRating": {
+      "title": "Rider Rating",
+      "description": "Feedback and rating for a delivery rider.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderId": { "type": "string" },
+        "customerId": { "type": "string" },
+        "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+        "feedback": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderId", "customerId", "rating"]
+    },
+    "Conversation": {
+      "title": "Support Conversation",
+      "description": "A chat conversation between a user and support (Agent).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "status": { "type": "string", "enum": ["OPEN", "WAITING_FOR_AGENT", "CLOSED"] },
+        "callState": { "type": "string", "enum": ["idle", "calling", "active"] },
+        "lastMessage": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "status", "updatedAt"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "A single message in a support conversation.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "type": { "type": "string", "enum": ["text", "image", "audio"] },
+        "fileUrl": { "type": "string" },
+        "sender": { "type": "string", "enum": ["user", "system", "admin"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sender", "timestamp"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "A push-style notification for users or riders.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "orderId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["title", "message", "type", "createdAt", "read"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/users/{userId}/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Notifications sent to a user"
+    },
+    "/riders/{riderId}": {
+      "schema": "Rider",
+      "description": "Delivery riders"
+    },
+    "/riders/{riderId}/ratings/{ratingId}": {
+      "schema": "RiderRating",
+      "description": "Ratings and feedback for a rider"
+    },
+    "/riders/{riderId}/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Notifications sent to a rider"
+    },
+    "/stores/{storeId}": {
+      "schema": "Store",
+      "description": "Stores and restaurants"
+    },
+    "/stores/{storeId}/products/{productId}": {
+      "schema": "Product",
+      "description": "Products for a specific store"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders"
+    },
+    "/orders/{orderId}/tracking/current": {
+      "schema": "Tracking",
+      "description": "Live tracking for an order"
+    },
+    "/conversations/{convId}": {
+      "schema": "Conversation",
+      "description": "Support conversations"
+    },
+    "/conversations/{convId}/messages/{msgId}": {
+      "schema": "ChatMessage",
+      "description": "Messages within a conversation"
+    }
+  }
+}
